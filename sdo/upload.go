@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
-	"github.com/brutella/can"
-	"github.com/brutella/canopen"
 	"log"
 	"time"
+
+	"github.com/brutella/can"
+	"github.com/brutella/canopen"
 )
 
 const (
@@ -27,10 +28,8 @@ type Upload struct {
 	ResponseCobID uint16
 }
 
-func (upload Upload) Do(bus *can.Bus) ([]byte, error) {
-	c := &canopen.Client{bus, time.Second * 2}
-	// Initiate
-	frame := canopen.Frame{
+func (upload *Upload) GetFrame() canopen.Frame {
+	return canopen.Frame{
 		CobID: upload.RequestCobID,
 		Data: []byte{
 			byte(ClientIntiateUpload),
@@ -39,8 +38,19 @@ func (upload Upload) Do(bus *can.Bus) ([]byte, error) {
 			0x0, 0x0, 0x0, 0x0,
 		},
 	}
+}
 
-	req := canopen.NewRequest(frame, uint32(upload.ResponseCobID))
+func (upload *Upload) GetRequest() *canopen.Request {
+	frame := upload.GetFrame()
+	return canopen.NewRequest(frame, uint32(upload.ResponseCobID))
+}
+
+func (upload Upload) Do(bus *can.Bus) ([]byte, error) {
+	c := &canopen.Client{bus, time.Second * 2}
+	// Initiate
+	frame := upload.GetFrame()
+	req := upload.GetRequest()
+
 	resp, err := c.Do(req)
 	if err != nil {
 		log.Print(err)

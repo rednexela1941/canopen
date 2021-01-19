@@ -1,6 +1,8 @@
 package canopen
 
 import (
+	"strconv"
+
 	"github.com/brutella/can"
 )
 
@@ -37,6 +39,15 @@ func NewFrame(id uint16, data []uint8) Frame {
 // MessageType returns the message type.
 func (frm Frame) MessageType() uint16 {
 	return frm.CobID & MaskMessageType
+}
+
+func (frm Frame) Dump() string {
+	s := strconv.FormatUint(uint64(frm.CobID), 16)
+	s += "\t"
+	for _, d := range frm.Data {
+		s += " " + strconv.FormatUint(uint64(d), 16)
+	}
+	return s
 }
 
 // NodeID returns the node id.
