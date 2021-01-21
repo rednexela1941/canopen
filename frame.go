@@ -41,13 +41,18 @@ func (frm Frame) MessageType() uint16 {
 	return frm.CobID & MaskMessageType
 }
 
-func (frm Frame) Dump() string {
-	s := strconv.FormatUint(uint64(frm.CobID), 16)
-	s += "\t"
+// Dump frame in hex format.
+func (frm Frame) Dump() []string {
+	hs := make([]string, 0)
+	hs = append(hs, strconv.FormatUint(uint64(frm.CobID), 16))
 	for _, d := range frm.Data {
-		s += " " + strconv.FormatUint(uint64(d), 16)
+		sn := strconv.FormatUint(uint64(d), 16)
+		if d < 9 {
+			sn = "0" + sn
+		}
+		hs = append(hs, sn)
 	}
-	return s
+	return hs
 }
 
 // NodeID returns the node id.
